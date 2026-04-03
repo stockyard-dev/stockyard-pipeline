@@ -10,8 +10,8 @@ import (
 
 type Server struct { db *store.DB; mux *http.ServeMux }
 
-func New(db *store.DB) *Server {
-	s := &Server{db: db, mux: http.NewServeMux()}
+func New(db *store.DB, limits Limits) *Server {
+	s := &Server{db: db, mux: http.NewServeMux(), limits: limits}
 	s.mux.HandleFunc("GET /api/pipelines", s.listPipelines)
 	s.mux.HandleFunc("POST /api/pipelines", s.createPipeline)
 	s.mux.HandleFunc("GET /api/pipelines/{id}", s.getPipeline)
