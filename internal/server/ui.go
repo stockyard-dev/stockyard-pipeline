@@ -1,9 +1,12 @@
 package server
+
 import "net/http"
+
 func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Write([]byte(dashHTML))
 }
+
 const dashHTML = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Pipeline</title>
 <style>:root{--bg:#1a1410;--bg2:#241e18;--bg3:#2e261e;--rust:#c45d2c;--rl:#e8753a;--leather:#a0845c;--ll:#c4a87a;--cream:#f0e6d3;--cd:#bfb5a3;--cm:#7a7060;--gold:#d4a843;--green:#4a9e5c;--red:#c44040;--mono:'JetBrains Mono',Consolas,monospace;--serif:'Libre Baskerville',Georgia,serif}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--cream);font-family:var(--mono);font-size:13px;line-height:1.6}.hdr{padding:.6rem 1.2rem;border-bottom:1px solid var(--bg3);display:flex;justify-content:space-between;align-items:center}.hdr h1{font-family:var(--serif);font-size:1rem}.hdr h1 span{color:var(--rl)}.main{max-width:900px;margin:0 auto;padding:1rem 1.2rem}.btn{font-family:var(--mono);font-size:.68rem;padding:.3rem .6rem;border:1px solid;cursor:pointer;background:transparent;transition:.15s}.btn-p{border-color:var(--rust);color:var(--rl)}.btn-p:hover{background:var(--rust);color:var(--cream)}.btn-d{border-color:var(--bg3);color:var(--cm)}.btn-d:hover{border-color:var(--red);color:var(--red)}.btn-s{border-color:var(--green);color:var(--green)}.btn-s:hover{background:var(--green);color:var(--bg)}.card{background:var(--bg2);border:1px solid var(--bg3);padding:.7rem;margin-bottom:.4rem;cursor:pointer;transition:.1s}.card:hover{background:var(--bg3)}.card h3{font-size:.8rem;margin-bottom:.2rem}.card-meta{font-size:.65rem;color:var(--cm);display:flex;gap:.7rem}.st-success{color:var(--green)}.st-failed{color:var(--red)}.st-running{color:var(--gold)}.step-pill{display:inline-block;font-size:.6rem;padding:.1rem .3rem;background:var(--bg3);color:var(--ll);border-radius:2px;margin-right:.2rem}.empty{text-align:center;padding:2rem;color:var(--cm);font-style:italic;font-family:var(--serif)}.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:100}.modal{background:var(--bg2);border:1px solid var(--bg3);padding:1.5rem;width:95%;max-width:600px;max-height:90vh;overflow-y:auto}.modal h2{font-family:var(--serif);font-size:.95rem;margin-bottom:1rem}label.fl{display:block;font-size:.65rem;color:var(--leather);text-transform:uppercase;letter-spacing:1px;margin-bottom:.2rem;margin-top:.5rem}input[type=text],textarea,select{background:var(--bg);border:1px solid var(--bg3);color:var(--cream);padding:.35rem .5rem;font-family:var(--mono);font-size:.78rem;width:100%;outline:none}textarea{resize:vertical;min-height:60px}.run-row{display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;border-bottom:1px solid var(--bg3);font-size:.72rem}</style>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -51,4 +54,21 @@ async function saveNew(){
 function closeModal(){document.getElementById('modal').innerHTML=''}
 init()
 fetch('/api/tier').then(r=>r.json()).then(j=>{if(j.tier==='free'){var b=document.getElementById('upgrade-banner');if(b)b.style.display='block'}}).catch(()=>{var b=document.getElementById('upgrade-banner');if(b)b.style.display='block'});
-</script></body></html>`
+</script><script>
+(function(){
+  fetch('/api/config').then(function(r){return r.json()}).then(function(cfg){
+    if(!cfg||typeof cfg!=='object')return;
+    if(cfg.dashboard_title){
+      document.title=cfg.dashboard_title;
+      var h1=document.querySelector('h1');
+      if(h1){
+        var inner=h1.innerHTML;
+        var firstSpan=inner.match(/<span[^>]*>[^<]*<\/span>/);
+        if(firstSpan){h1.innerHTML=firstSpan[0]+' '+cfg.dashboard_title}
+        else{h1.textContent=cfg.dashboard_title}
+      }
+    }
+  }).catch(function(){});
+})();
+</script>
+</body></html>`
